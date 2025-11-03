@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <windows.h>
 using namespace std;
 
 class player
@@ -78,6 +79,17 @@ public:
         cout << name << "'s stamina has fully restored!" << endl;
         cout << "Current stamina is " << stamina << endl;
     }
+    void heal()
+    {
+        hp += 2;
+        cout << "\033[1;32m+2 Hp\033[0m" << endl;
+        cout << "Current hp: " << hp << endl;
+    }
+    void showStats()
+    {
+        cout << "HP: " << hp << endl;
+        cout << "Stamina: " << stamina << endl;
+    }
 };
 
 class enemy
@@ -121,8 +133,18 @@ public:
     }
 };
 
+void enableANSIColors() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING; // Enable ANSI color
+    SetConsoleMode(hOut, dwMode);
+}
+
 main()
 {
+    enableANSIColors();
+
     player p1;
     enemy enemy1;
 
@@ -131,15 +153,17 @@ main()
     while (!enemyDefeated && !playerDefeated)
     {
         int choice = 0;
-        cout << "======================================================" << endl;
-        cout << "Your turn is up, choose one of the following actions: " << endl;
-        cout << "1- Shining Blade (5 damage) (-1 stamina)" << endl;
-        cout << "2- Skull Crusher (20 damage) (-3 stamina)" << endl;
-        cout << "3- Rest (fully restore stamina)" << endl;
-
         int choicePhaseDone = false;
+
         while (((choice <= 0) || (choice > p1.returnWeaponCount())) && !choicePhaseDone)
         {
+            cout << "======================================================" << endl;
+            cout << "Your turn is up, choose one of the following actions: " << endl;
+            cout << "1- Shining Blade \033[1;31m(5 damage)\033[0m \033[1;33m(-1 stamina)\033[0m" << endl;
+            cout << "2- Skull Crusher \033[1;31m(20 damage)\033[0m \033[1;33m(-3 stamina)\033[0m" << endl;
+            cout << "3- Rest \033[1;33m(fully restore stamina)\033[0m" << endl;
+            cout << "4- Heal \033[1;32m(+2HP)\033[0m" << endl;
+            cout << "5- Show stats" << endl;
             cout << "Enter Choice: ";
             cin >> choice;
             system("cls");
@@ -172,6 +196,16 @@ main()
             {
                 p1.rest();
                 choicePhaseDone = true;
+            }
+            else if (choice == 4)
+            {
+                p1.heal();
+                choicePhaseDone = true;
+            }
+            else if (choice == 5)
+            {
+                p1.showStats();
+                choicePhaseDone = false;
             }
             else
             {
